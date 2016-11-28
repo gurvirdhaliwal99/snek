@@ -5,14 +5,22 @@ $(document).ready(function() {
   var h = $("#canvas").length();
 
   var cw = 10;
-  var d = "right"
-
-  ctx.fillStyle = "black";
-  ctx.fillRect(0, 0, w, h);
-  ctx.strokeStyle = "white";
-  ctx.strokeRect(0, 0, w, h);
+  var d;
+  var food;
+  var score
 
   var snake_array;
+  
+  function init(){
+  	d = "right";
+    create_snake();
+    create_food();
+    score = 0;
+    if(typeof game_loop ! = "undefined") clearInterval(game_loop);
+    game_loop = setInterval(paint,60);
+  }
+  
+  init();
 
   create_snake();
 
@@ -24,6 +32,13 @@ $(document).ready(function() {
         x: i,
         y: 0
       });
+    }
+  }
+  
+  function create_food() {
+  	food = {
+    x: Math.round(Math.random()*(w-cw)/cw),
+    y: Math.round(Math.random()*(h-cw)/cw),
     }
   }
 
@@ -42,23 +57,50 @@ $(document).ready(function() {
     else if (d == "up") ny--;
     else if (d == "down") ny++;
 
-    if (nx == -1 || nx == w / cw || ny == -1 || ny = h / cw) {
+    if (nx == -1 || nx == w / cw || ny == -1 || ny = h / cw || check_collision(ny,nx,snake_array)) {
+    	init();
       return;
     }
-
-    var tail = snake_array.pop();
-    tail.x = nx;
-    tail.y = ny;
+    
+    if(nx == food.x && ny == food.y)
+    {
+    	var tail = (x:nx, y:ny);
+      score++;
+      create_food();
+    } else {
+      var tail = snake_array.pop();
+      tail.x = nx;
+      tail.y = ny;
+    }
+    
     snake_array.unshift(tail);
 
     for (var i = 0; i < snake_array.length; i++) {
       var c = snake_array[i];
-
+			paint_cell(c.x, c.y);
+    }
+  	  paint_cell(food.x, food.y);
+      var score_text = "Score" + score;
+      ctx.
+  }
+  
+  function paint_cell(x,y)
+  {
       ctx.fillStyle = "green";
       ctx.fillRect(c.x * cw, c.y * cw, cw, cw);
       ctx.strokeStyle = "white";
       ctx.strokeRect(c.x * cw, c.y * cw, cw, cw);
+  }
+  
+  
+  function check_collision(x,y,array)
+  {
+  	for(var i = 0; i < array.length; i++)
+    {
+    	if(array[i].x == x && array[i].y == y)
+      return true;
     }
+    return false;
   }
 
   $(document).keydown(function(e) {
@@ -70,5 +112,4 @@ $(document).ready(function() {
 
   })
 
-  game_loop = setInterval(paint, 60);
 })
